@@ -38,7 +38,11 @@ pip install -r requirements.txt
 
 ---
 
-## Usage
+## For streamlit 
+
+### **Step 1: Change directory to streamlit in terminal**
+
+### **Step 2: In terminal run ```streamlit run final.py ```***
 
 
 
