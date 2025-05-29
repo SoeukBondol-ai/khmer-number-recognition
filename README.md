@@ -44,6 +44,8 @@ pip install -r requirements.txt
 
 ### **Step 2: In terminal run ```streamlit run final.py ```**
 
+### **Step 3: Stop run by use command ```control + c ```**
+
 
 
 
