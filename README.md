@@ -19,24 +19,12 @@ git clone https://github.com/SoeukBondol-ai/khmer-number-recognition.git
 cd khmer-number-recognition
 ```
 
-### **Step 2: Create a Virtual Environment**
-#### Windows (CMD or PowerShell)
+### **Step 2: Set up project with uv**
+#### you must have uv install on your machine
 ```sh
-python -m venv venv
-venv\Scripts\activate
-```
-#### macOS / Linux (Terminal)
-```sh
-python3 -m venv venv
-source venv/bin/activate
+uv sync
 ```
 
-### **Step 3: Install Dependencies**
-```sh
-pip install -r requirements.txt
-```
-
----
 
 ## For streamlit 
 
