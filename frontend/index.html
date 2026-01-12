@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Khmer Digit Recognition</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@100..700&display=swap" rel="stylesheet">
+  </head>
+
+  <body>
+    <h1>Khmer Digit Recognition</h1>
+    <p>Predicts handwritten Khmer digits using LeNet + PyTorch</p>
+
+    <section>
+      <div id="input">
+        <canvas id="main-canvas" width="300" height="300"></canvas>
+        <div id="prediction"></div>
+      </div>
+
+      <div id="confidence">&#8212</div>
+      <button id="erase">Reset</button>
+
+      <div id="status">API status: Ready</div>
+    </section>
+
+    <section>
+      <table id="prediction-table">
+        <thead>
+          <tr>
+            <th>Digit</th>
+            <th>Predicted %</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>០</td><td>-</td></tr>
+          <tr><td>១</td><td>-</td></tr>
+          <tr><td>២</td><td>-</td></tr>
+          <tr><td>៣</td><td>-</td></tr>
+          <tr><td>៤</td><td>-</td></tr>
+          <tr><td>៥</td><td>-</td></tr>
+          <tr><td>៦</td><td>-</td></tr>
+          <tr><td>៧</td><td>-</td></tr>
+          <tr><td>៨</td><td>-</td></tr>
+          <tr><td>៩</td><td>-</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>
