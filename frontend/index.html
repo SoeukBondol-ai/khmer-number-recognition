@@ -1,56 +1,74 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Khmer Digit Recognition</title>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Khmer Digit Recognition</title>
 
-    <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600&display=swap" rel="stylesheet" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@100..700&display=swap" rel="stylesheet">
-  </head>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Khmer Digit Recognition</h1>
+      <p>Draw a digit and let AI predict it</p>
+    </header>
 
-  <body>
-    <h1>Khmer Digit Recognition</h1>
-    <p>Predicts handwritten Khmer digits using LeNet + PyTorch</p>
-
-    <section>
-      <div id="input">
+    <div class="main-grid">
+      <!-- Canvas Section -->
+      <section class="canvas-section">
         <canvas id="main-canvas" width="300" height="300"></canvas>
-        <div id="prediction"></div>
-      </div>
+        
+        <div class="controls">
+          <button id="erase">Clear</button>
+          <select id="model-select">
+            <option value="lenet">LeNet</option>
+            <option value="resnet">ResNet</option>
+          </select>
+        </div>
 
-      <div id="confidence">&#8212</div>
-      <button id="erase">Reset</button>
+        <div id="status">Ready</div>
+      </section>
 
-      <div id="status">API status: Ready</div>
-    </section>
+      <!-- Prediction Section -->
+      <section class="prediction-section">
+        <div class="result-card">
+          <div id="prediction-box">–</div>
+          <div id="confidence">—</div>
+        </div>
 
-    <section>
-      <table id="prediction-table">
-        <thead>
-          <tr>
-            <th>Digit</th>
-            <th>Predicted %</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>០</td><td>-</td></tr>
-          <tr><td>១</td><td>-</td></tr>
-          <tr><td>២</td><td>-</td></tr>
-          <tr><td>៣</td><td>-</td></tr>
-          <tr><td>៤</td><td>-</td></tr>
-          <tr><td>៥</td><td>-</td></tr>
-          <tr><td>៦</td><td>-</td></tr>
-          <tr><td>៧</td><td>-</td></tr>
-          <tr><td>៨</td><td>-</td></tr>
-          <tr><td>៩</td><td>-</td></tr>
-        </tbody>
-      </table>
-    </section>
+        <table id="prediction-table">
+          <thead>
+            <tr>
+              <th>Digit</th>
+              <th>Probability</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>០</td><td>-</td></tr>
+            <tr><td>១</td><td>-</td></tr>
+            <tr><td>២</td><td>-</td></tr>
+            <tr><td>៣</td><td>-</td></tr>
+            <tr><td>៤</td><td>-</td></tr>
+            <tr><td>៥</td><td>-</td></tr>
+            <tr><td>៦</td><td>-</td></tr>
+            <tr><td>៧</td><td>-</td></tr>
+            <tr><td>៨</td><td>-</td></tr>
+            <tr><td>៩</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
 
-    <script src="script.js"></script>
-  </body>
+  <!-- JS -->
+  <script src="script.js"></script>
+</body>
 </html>

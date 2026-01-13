@@ -1,77 +1,53 @@
-
 const canvas = document.getElementById("main-canvas");
-const displayBox = document.getElementById("prediction");
+const ctx = canvas.getContext("2d");
+const predictionBox = document.getElementById("prediction-box");
 const confidenceBox = document.getElementById("confidence");
 const statusElement = document.getElementById("status");
-
-const ctx = canvas.getContext("2d");
+const modelSelect = document.getElementById("model-select");
 
 let isDrawing = false;
 
-// ---------------------------
-// Initialize canvas (BLACK background)
-// ---------------------------
 function initCanvas() {
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "#1a1a1a";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
-
 initCanvas();
 
-// ---------------------------
-// Utility: check if canvas is empty
-// ---------------------------
 function isCanvasEmpty() {
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
   for (let i = 0; i < imgData.length; i += 4) {
-    // If any pixel is not black → drawing exists
-    if (imgData[i] > 10) {
-      return false;
-    }
+    if (imgData[i] > 10) return false;
   }
   return true;
 }
 
-// ---------------------------
-// Reset EVERYTHING 
-// ---------------------------
 function resetUI() {
-  // Clear canvas
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "#1a1a1a";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Clear main prediction
-  displayBox.innerText = "";
-  confidenceBox.innerHTML = "&#8212";
-
-  // Reset table
+  predictionBox.innerText = "–";
+  confidenceBox.innerHTML = "Ready to predict";
   const table = document.querySelector("#prediction-table tbody");
-  for (let i = 0; i < 10; i++) {
-    table.rows[i].cells[1].innerText = "-";
-  }
-
-  // Status
-  statusElement.textContent = "API status: Ready";
+  for (let i = 0; i < 10; i++) table.rows[i].cells[1].innerText = "—";
+  statusElement.textContent = "Draw a digit to begin";
+  statusElement.className = "status-bar";
 }
 
-// ---------------------------
-// Drawing logic
-// ---------------------------
+// Adjust the line width style
 function drawStart(e) {
   isDrawing = true;
   ctx.strokeStyle = "white";
-  ctx.lineWidth = 12;              // 12 defualt seem it work great with this value lol !
+  ctx.lineWidth = 8;
   ctx.lineJoin = ctx.lineCap = "round";
   ctx.beginPath();
 }
 
 function drawMove(e) {
   if (!isDrawing) return;
-
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
   ctx.lineTo(x, y);
   ctx.stroke();
   ctx.moveTo(x, y);
@@ -79,59 +55,43 @@ function drawMove(e) {
 
 function drawEnd() {
   isDrawing = false;
-
-  // Do NOT predict if nothing was drawn
-  if (isCanvasEmpty()) {
-    return;
-  }
-
-  sendCanvasToAPI();
+  if (!isCanvasEmpty()) sendCanvasToAPI(modelSelect.value);
 }
 
-// ---------------------------
-// Send canvas → FastAPI
-// ---------------------------
-async function sendCanvasToAPI() {
-  if (isCanvasEmpty()) {
-    console.log("Canvas empty, skip prediction");
-    return;
-  }
 
-  statusElement.textContent = "API status: Predicting...";
+// API request
+async function sendCanvasToAPI(model) {
+  if (isCanvasEmpty()) return;
+  statusElement.textContent = `Analyzing with ${
+    model === "lenet" ? "LeNet" : "ResNet"
+  }...`;
+  statusElement.className = "status-bar predicting";
 
   canvas.toBlob(async (blob) => {
     const formData = new FormData();
     formData.append("file", blob, "digit.png");
 
     try {
-      const response = await fetch("http://localhost:8000/predict", {
+      const response = await fetch(`http://localhost:8000/predict/${model}`, {
         method: "POST",
-        body: formData
+        body: formData,
       });
-
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       updateUI(data);
-
-      statusElement.textContent = "API status: Ready";
-    } catch (error) {
-      console.error(error);
-      statusElement.textContent = "API status: Error";
+      statusElement.textContent = "Prediction complete!";
+      statusElement.className = "status-bar";
+    } catch (err) {
+      console.error("Prediction failed:", err);
+      statusElement.textContent = "Connection error - check if API is running";
+      statusElement.className = "status-bar error";
     }
   });
 }
 
-// ---------------------------
-// Update UI from API response
-// ---------------------------
 function updateUI(data) {
-  // Big predicted digit (Khmer)
-  displayBox.innerText = data.khmer;
-
-  // Confidence
-  confidenceBox.innerHTML =
-    `<strong>${Math.round(data.confidence * 100)}%</strong> confidence`;
-
-  // Probability table
+  predictionBox.innerText = data.khmer;
+  confidenceBox.innerHTML = `${Math.round(data.confidence * 100)}% confident`;
   const table = document.querySelector("#prediction-table tbody");
   for (let i = 0; i < 10; i++) {
     table.rows[i].cells[1].innerText =
@@ -139,17 +99,13 @@ function updateUI(data) {
   }
 }
 
-// ---------------------------
-// Event listeners (mouse)
-// ---------------------------
+
+// Event Listeners
 canvas.addEventListener("mousedown", drawStart);
 canvas.addEventListener("mousemove", drawMove);
 canvas.addEventListener("mouseup", drawEnd);
 canvas.addEventListener("mouseleave", drawEnd);
 
-// ---------------------------
-// Event listeners (touch / mobile)
-// ---------------------------
 canvas.addEventListener("touchstart", (e) => {
   e.preventDefault();
   drawStart(e.touches[0]);
@@ -163,7 +119,5 @@ canvas.addEventListener("touchend", (e) => {
   drawEnd();
 });
 
-// ---------------------------
-// Reset button
-// ---------------------------
 document.getElementById("erase").addEventListener("click", resetUI);
+modelSelect.addEventListener("change", resetUI);
