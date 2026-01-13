@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(
@@ -101,32 +100,10 @@ class ResNet(nn.Module):
 # -------------------------
 # Factory function
 # -------------------------
-def resnet18_small(num_classes=10):
+def resnet18(num_classes=10):
     return ResNet(
         BasicBlock,
         layers=[2, 2, 2, 2],   # ResNet-18 depth
         num_classes=num_classes
     )
 
-
-# -------------------------
-# LeNet 
-# -------------------------
-class LeNet(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 6, 5)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        self.fc1 = nn.Linear(16 * 4 * 4, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 10)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.max_pool2d(x, 2)
-        x = F.relu(self.conv2(x))
-        x = F.max_pool2d(x, 2)
-        x = x.view(x.size(0), -1)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        return self.fc3(x)

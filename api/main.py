@@ -1,11 +1,20 @@
+import sys
+from pathlib import Path
+import cv2
+import numpy as np
+import torch
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-import numpy as np
-import cv2
-import torch
-import torch.nn as nn
-from model import LeNet
-from ..api.src.utils.lenet_preprocess import preprocess_image
+
+API_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = API_DIR.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from api.src.common.model_lenet import LeNet
+from api.src.common.model_resnet import resnet18 as ResNetModel
+from api.src.utils.lenet_preprocess import preprocess_image
+from api.src.utils.resnet_preprocess import preprocess_digit
 
 # -------------------------
 # Khmer digit mapping
@@ -29,14 +38,28 @@ app.add_middleware(
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = LeNet().to(device)
-model.load_state_dict(torch.load("models/lenet/lenet.pth", map_location=device))
-model.eval()
+WEIGHTS_DIR = API_DIR / "model"
+LENET_WEIGHTS = WEIGHTS_DIR / "lenet" / "lenet.pth"
+RESNET_WEIGHTS = WEIGHTS_DIR / "resnet" / "resnet_digits.pth"
+
+if not LENET_WEIGHTS.exists():
+    raise FileNotFoundError(f"Missing LeNet weights at {LENET_WEIGHTS}")
+
+if not RESNET_WEIGHTS.exists():
+    raise FileNotFoundError(f"Missing ResNet weights at {RESNET_WEIGHTS}")
+
+model_lenet = LeNet().to(device)
+model_lenet.load_state_dict(torch.load(LENET_WEIGHTS, map_location=device))
+model_lenet.eval()
+
+model_resnet = ResNetModel(num_classes=10).to(device)
+model_resnet.load_state_dict(torch.load(RESNET_WEIGHTS, map_location=device))
+model_resnet.eval()
 
 # -------------------------
 # API endpoint
 # -------------------------
-@app.post("/predict")
+@app.post("/predict/lenet")
 async def predict(file: UploadFile = File(...)):
     contents = await file.read()
     npimg = np.frombuffer(contents, np.uint8)
@@ -45,10 +68,27 @@ async def predict(file: UploadFile = File(...)):
     img_tensor = preprocess_image(img).to(device)
 
     with torch.no_grad():
-        output = model(img_tensor)
+        output = model_lenet(img_tensor)
         probs = torch.softmax(output, dim=1).cpu().numpy()[0]
 
     pred = int(probs.argmax())
+
+    return {
+        "digit": pred,
+        "khmer": KHMER_DIGITS[pred],
+        "confidence": float(probs[pred]),
+        "probabilities": probs.tolist()
+    }
+
+@app.post("/predict/resnet")
+async def predict(file: UploadFile = File(...)):
+    content = await file.read()
+    img = preprocess_digit(content).to(device)
+
+    with torch.no_grad():
+        output = model_resnet(img)
+        probs = torch.softmax(output, dim=1).cpu().numpy()[0]
+        pred = int(probs.argmax())
 
     return {
         "digit": pred,
