@@ -1,7 +1,20 @@
 import cv2
+import numpy as np
+from PIL import Image
+from torchvision import transforms
+
+resnet_transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485,0.456,0.406],
+        std=[0.229,0.224,0.225]
+    )
+])
 
 def preprocess_digit(img_path):
-    img = cv2.imread(img_path)
+
+    nparr = np.frombuffer(img_path, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5,5), 0)
     _, binary = cv2.threshold(
@@ -24,5 +37,9 @@ def preprocess_digit(img_path):
         cv2.BORDER_CONSTANT, value=0
     )
     digit = cv2.cvtColor(digit, cv2.COLOR_GRAY2RGB)
+
+
+    digit = Image.fromarray(digit)
+    digit = resnet_transform(digit).unsqueeze(0)
 
     return digit
