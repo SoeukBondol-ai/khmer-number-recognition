@@ -11,7 +11,7 @@ PROJECT_ROOT = API_DIR.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from api.src.common.model_lenet import LeNet
+from api.src.common.model_lenet import LeNetBN
 from api.src.common.model_resnet import resnet18 as ResNetModel
 from api.src.utils.lenet_preprocess import preprocess_image
 from api.src.utils.resnet_preprocess import preprocess_digit
@@ -48,7 +48,7 @@ if not LENET_WEIGHTS.exists():
 if not RESNET_WEIGHTS.exists():
     raise FileNotFoundError(f"Missing ResNet weights at {RESNET_WEIGHTS}")
 
-model_lenet = LeNet().to(device)
+model_lenet = LeNetBN().to(device)
 model_lenet.load_state_dict(torch.load(LENET_WEIGHTS, map_location=device))
 model_lenet.eval()
 

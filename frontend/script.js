@@ -8,7 +8,7 @@ const modelSelect = document.getElementById("model-select");
 let isDrawing = false;
 
 function initCanvas() {
-  ctx.fillStyle = "#1a1a1a";
+  ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 initCanvas();
@@ -22,7 +22,7 @@ function isCanvasEmpty() {
 }
 
 function resetUI() {
-  ctx.fillStyle = "#1a1a1a";
+  ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   predictionBox.innerText = "–";
   confidenceBox.innerHTML = "Ready to predict";
